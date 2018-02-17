@@ -1,0 +1,111 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+  <body>
+    <!--To add custom logo-->
+    <referenceBlock name="logo">
+      <arguments>
+        <argument name="logo_file" xsi:type="string">images/logo.png</argument>
+        <argument name="logo_img_width" xsi:type="number">160</argument>
+        <argument name="logo_img_height" xsi:type="number">70</argument>
+      </arguments>
+    </referenceBlock>
+    <referenceContainer name="header.container">
+      <block class="Magento\Framework\View\Element\Template" name="custom_header" as="custom_header" template="Magento_Theme::html/customheader.phtml"  before="-"/>
+      <block class="Magento\Framework\View\Element\Template" name="custom_cart_success" as="cart_success" template="Magento_Theme::cart-success.phtml"  before="-"/>
+    </referenceContainer>
+    <move element="minicart" destination="custom_header"/>
+    <!-- <move element="top.search" destination="custom_header"/> -->
+    <move element="logo" as="logo" destination="custom_header"/>
+	
+	
+	<!--To remove top links-->
+	<referenceBlock name="top.links">
+	<block class="Magento\Theme\Block\Html\Header" name="header" as="header" before="-">
+	<arguments>
+	<argument name="show_part" xsi:type="string">welcome</argument>
+	</arguments>
+	</block>
+				
+	<referenceBlock name="register-link" remove="true" /> <!--for Create Account Link-->
+    <referenceBlock name="authorization-link" remove="true" /> <!--for Sign In Link  -->
+    <referenceBlock name="wish-list-link" remove="true" /> <!--for WishList Link-->
+    <referenceBlock name="my-account-link" remove="true" /> <!--for My Account Link-->
+	</referenceBlock>
+	
+	
+	<!--To remove store menu-->
+	<!--<referenceContainer name="page.top" remove="true" />-->
+	
+	
+	<!--To remove welcome message-->
+	<!--<referenceBlock name="header">
+    <arguments>
+	<argument name="show_part" xsi:type="string">other</argument>
+    </arguments>
+	</referenceBlock>
+	-->
+	<!--To add custom footer-->
+	<referenceContainer name="footer-container">
+	<container name="footer" as="footer" label="Page Footer" htmlTag="div" htmlClass="footer content">
+	
+	<block class="Magento\Store\Block\Switcher" name="store_switcher" as="store_switcher" template="switch/stores.phtml"/>
+	<block class="Magento\Framework\View\Element\Html\Links" name="footer_links">
+	<arguments>
+	<argument name="css_class" xsi:type="string">footer links</argument>
+	</arguments>
+	</block>
+	<block class="Magento\Theme\Block\Html\Footer" name="copyright" template="html/copyright.phtml"/>
+	<block class="Magento\Framework\View\Element\Template" name="report.bugs" template="Magento_Theme::html/bugreport.phtml" />
+			
+			
+	 
+	<block class="Magento\Cms\Block\Block" name="block-footer-social-icons" after="footer_links">
+	<arguments>
+	<argument name="block_id" xsi:type="string">footer-social-icons</argument>
+	</arguments>
+	</block>		
+	
+	<block class="Magento\Cms\Block\Block" name="block-footer-logo" after="footer_links">
+	<arguments>
+	<argument name="block_id" xsi:type="string">footer-logo</argument>
+	</arguments>
+	</block>
+	
+	<block class="Magento\Cms\Block\Block" name="block-footer-contact-info" after="footer_links">
+	<arguments>
+	<argument name="block_id" xsi:type="string">footer-contact-info</argument>
+	</arguments>
+	</block>
+	
+	</container>
+	</referenceContainer>
+	
+	
+	<!--To add quick links after footer-->
+	<block class="Magento\Cms\Block\Block" name="block-footer-quick-links" after="footer_links">
+	<arguments>
+	<argument name="block_id" xsi:type="string">footer-quick-links</argument>
+	</arguments>
+	</block>
+	<move element="block-footer-quick-links" destination="before.body.end"/>	
+	
+	
+	<!--To remove copyright from footer-->
+	<referenceBlock name="copyright" remove="true"/>
+	
+	
+	<!--To remove bug text from footer-->
+	<referenceBlock name="report.bugs" remove="true" />
+	
+	<!--To remove filter block-->
+	<referenceBlock name="catalog.leftnav" remove="true" />
+	
+	<!--To remove breadcrumbs-->
+	<!-- <referenceBlock name="breadcrumbs" remove="true" /> -->
+	<!-- <move element="breadcrumbs" destination="category.product.list.additional" before="-"/> -->
+	<move element="minicart" destination="page.top" before="-"/>
+	<referenceContainer name="header.container">
+        <block class="Codesh\Isincart\Block\Isincart" cacheable="false" before="-" template="Codesh_Isincart::is_incart.phtml" name="cart-panel"/>
+    </referenceContainer>
+    <move element="top.search" destination="page.wrapper" after="header.container"/>
+</body>
+</page>

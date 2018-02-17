@@ -1,0 +1,309 @@
+<?php
+/**
+* Copyright © 2013-2017 Magento, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+use Magento\Framework\App\Action\Action;
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php
+/**
+* Product list template
+*
+* @var $block \Magento\Catalog\Block\Product\ListProduct
+*/
+?>
+<?php
+$_productCollection = $block->getLoadedProductCollection();
+$_helper = $this->helper('Magento\Catalog\Helper\Output');
+$blockObj= $block->getLayout()->createBlock('Codesh\Bestseller\Block\Bestseller');
+$bestSellerCollection = $blockObj->getBestsellerCollection();
+?>
+<?php if (!$_productCollection->count()): ?>
+<div class="message info empty"><div><?php /* @escapeNotVerified */ echo __('We can\'t find products matching the selection.') ?></div></div>
+<?php else: ?>
+<?php echo $block->getToolbarHtml() ?>
+<?php echo $block->getAdditionalHtml() ?>
+<?php
+if ($block->getMode() == 'grid') {
+$viewMode = 'grid';
+$image = 'category_page_grid';
+$showDescription = false;
+$templateType = \Magento\Catalog\Block\Product\ReviewRendererInterface::SHORT_VIEW;
+} else {
+$viewMode = 'list';
+$image = 'category_page_list';
+$showDescription = true;
+$templateType = \Magento\Catalog\Block\Product\ReviewRendererInterface::FULL_VIEW;
+}
+/**
+* Position for actions regarding image size changing in vde if needed
+*/
+$pos = $block->getPositioned();
+?>
+<div class="products wrapper <?php /* @escapeNotVerified */ echo $viewMode; ?> products-<?php /* @escapeNotVerified */ echo $viewMode; ?>">
+<?php $iterator = 1; ?>
+<ol class="products list items product-items">
+<?php /** @var $_product \Magento\Catalog\Model\Product */ ?>
+<?php foreach ($_productCollection as $_product): ?>
+    <?php 
+       $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+       $mediaUrl = $objectManager->get('Magento\Store\Model\StoreManagerInterface')
+       ->getStore()
+       ->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+    $hotDeals = (string)$_product->getResource()->getAttribute('show_hot_deal')->getFrontend()->getValue($_product);
+    $priceDrop = (string)$_product->getResource()->getAttribute('show_price_drop_label')->getFrontend()->getValue($_product);
+?>
+    <?php /* @escapeNotVerified */ echo($iterator++ == 1) ? '<li class="item product product-item">' : '</li><li class="item product product-item">' ?>
+    <div class="product-item-info" data-container="product-grid">
+        <?php
+        $productImage = $block->getImage($_product, $image);
+        if ($pos != null) {
+            $position = ' style="left:' . $productImage->getWidth() . 'px;'
+                . 'top:' . $productImage->getHeight() . 'px;"';
+        }
+        ?>
+        <strong class="product name product-item-name">
+                <a class="product-item-link"
+                   href="<?php /* @escapeNotVerified */ echo $_product->getProductUrl() ?>">
+                    <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getName(), 'name'); ?>
+                </a>
+            </strong>
+            <!--*add to compare*-->
+            <div data-role="add-to-links" class="actions-secondary"<?php echo strpos($pos, $viewMode . '-secondary') ? $position : ''; ?>>
+                <?php if ($addToBlock = $block->getChildBlock('addto')): ?>
+                <?php echo $addToBlock->setProduct($_product)->getChildHtml(); ?>
+            <?php endif; ?>
+            </div>
+            <!--*add to compare*-->
+                <?php  
+                //echo "<pre>";print_r( $productImage->getImageUrl());
+                    if($hotDeals === 'Yes'){
+                ?>
+                        <span class="hot-deals"><img src="<?php echo $mediaUrl.'deals_logo/hotdeal.png'; ?>" width="50"/></span>
+                    <?php
+                    }
+                    if($priceDrop === 'Yes'){
+                        ?>
+                        <span class="price-drop"><img src="<?php echo $mediaUrl.'deals_logo/pricedrop.png'; ?>" width="50"/></span>
+                        <?php
+                    }
+                    if(in_array($_product->getId(),$bestSellerCollection)){
+                    ?>
+                        <span class="best-seller"><img src="<?php echo $mediaUrl.'deals_logo/best-seller.png'; ?>" width="50"/></span>
+                    <?php
+                    }
+                ?>
+        <?php // Product Image ?>
+        <a href="<?php echo $mediaUrl.'catalog/product'. $_product->getImage() ?>" class="product photo product-item-photo" data-lightbox="example-2" tabindex="-1">
+            <?php echo $productImage->toHtml(); ?>
+        </a>
+        <div class="product details product-item-details">
+            <?php
+                $_productNameStripped = $block->stripTags($_product->getName(), null, true);
+            ?>
+            <?php echo $block->getReviewsSummaryHtml($_product, $templateType); ?>
+            <?php /* @escapeNotVerified */ echo $block->getProductPrice($_product) ?>
+            <?php echo $block->getProductDetailsHtml($_product); ?>
+
+            <div class="product-item-inner">
+                <div class="product actions product-item-actions clearfix"<?php echo strpos($pos, $viewMode . '-actions') ? $position : ''; ?>>
+                    <div class="actions-primary"<?php echo strpos($pos, $viewMode . '-primary') ? $position : ''; ?>>
+                        <?php if ($_product->isSaleable()): ?>
+                            <?php $postParams = $block->getAddToCartPostParams($_product); ?>
+                            <form data-role="tocart-form"  data-product-sku="<?php echo $block->escapeHtml($_product->getSku()); ?>"
+                                  action="<?php echo $block->escapeHtml($postParams['action']); ?>" method="post">
+                                <input type="hidden" name="product" value="<?php /* @escapeNotVerified */ echo $postParams['data']['product']; ?>">
+                                <input type="hidden" name="<?php /* @escapeNotVerified */ echo Action::PARAM_NAME_URL_ENCODED; ?>" value="<?php /* @escapeNotVerified */ echo $postParams['data'][Action::PARAM_NAME_URL_ENCODED]; ?>">
+                                <?php echo $block->getBlockHtml('formkey')?>
+                                <?php 
+                                /*test*/
+                        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                        $productId = $_product->getId();
+                        $test = $objectManager->get('\Magento\Checkout\Model\Session')->getQuote();
+                        $result = $test->getAllVisibleItems();
+                        $itemsIds = array();
+                        foreach ($result as $cartItem) {
+                            array_push($itemsIds, $cartItem->getProduct()->getId());
+                        }
+                        if(in_array($productId, $itemsIds)):
+                            ?>
+                            <button type="submit" title="<?php echo $block->escapeHtml(__('Add to Cart')); ?>" class="action tocart primary disabled">
+                                <span><?php /* @escapeNotVerified */ echo __('In Your Cart') ?><input type="checkbox" checked></span>
+                            </button>
+                                <?php
+                                else:
+                                ?>
+                            <span class="cart-button">
+    <button type="submit"
+            title="<?php echo $block->escapeHtml(__('Add to Cart')); ?>"
+            class="action tocart primary"  onClick="addToCartCustom('<?php echo $_product->getName() ?>' ,'<?php echo $productImage->getImageUrl() ?>')">
+        <span><?php /* @escapeNotVerified */ echo __('Add to Cart') ?></span>
+    </button>
+                            </span>
+                            <?php endif; ?>
+                            </form>
+                             <a href="#" id="<?php echo $_product->getName() ?>" class="product-inquiry"><?php /* @escapeNotVerified */ echo __('Enquire Now') ?></a>
+                        <?php else: ?>
+                            <?php if ($_product->getIsSalable()): ?>
+                                <div class="stock available"><span><?php /* @escapeNotVerified */ echo __('In stock') ?></span></div>
+                            <?php else: ?>
+                                <div class="stock unavailable"><span><?php /* @escapeNotVerified */ echo __('Out of stock') ?></span></div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                   <!--  <div data-role="add-to-links" class="actions-secondary"<?php //echo strpos($pos, $viewMode . '-secondary') ? $position : ''; ?>>
+                        <?php //if ($addToBlock = $block->getChildBlock('addto')): ?>
+                            <?php //echo $addToBlock->setProduct($_product)->getChildHtml(); ?>
+                        <?php //endif; ?>
+                    </div> -->
+                </div>
+                <?php if ($showDescription):?>
+                    <div class="product description product-item-description">
+                        <?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_product->getShortDescription(), 'short_description') ?>
+                        <a href="<?php /* @escapeNotVerified */ echo $_product->getProductUrl() ?>" title="<?php /* @escapeNotVerified */ echo $_productNameStripped ?>"
+                           class="action more"><?php /* @escapeNotVerified */ echo __('Learn More') ?></a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php echo($iterator == count($_productCollection)+1) ? '</li>' : '' ?>
+<?php endforeach; ?>
+</ol>
+</div>
+<?php //echo $block->getToolbarHtml() ?>
+<?php if (!$block->isRedirectToCartEnabled()) : ?>
+<script type="text/x-magento-init">
+{
+"[data-role=tocart-form], .form.map.checkout": {
+    "catalogAddToCart": {
+        "product_sku": "<?php /* @escapeNotVerified */  echo $_product->getSku() ?>"
+    }
+}
+}
+</script>
+<?php endif; ?>
+<?php endif; ?>
+<script type="text/javascript">
+require(
+[
+'jquery', 
+'domReady!',
+], function ($) {
+'use strict';
+new Lightbox({
+fadeDuration  : 200,
+resizeDuration: 400,
+wrapAround    :1
+});
+});
+</script>
+<div id="nnquiry-mpdal" class="product-inquiry-content" style="display:none;">
+   <!--  <legend class="legend"><span><h1> Product Inquiry.. </h1></span></legend><br> -->
+        <form action="" id="inquiry-form" class="inquiry-form" data-mage-init='{"validation": {}}'>
+          <fieldset class="fieldset">
+         <div class="field name required">
+            <label class="label"><span>Product</span></label>
+            <div class="control">
+                <input name="pname" id="pname" title="Product Name" value="" class="pname input-text required-entry required" type="text">
+            </div>
+        </div>
+          <div class="field name required">
+            <label class="label"><span>Name</span></label>
+            <div class="control">
+                <input name="name" id="name" title="Your Name" value="" class="input-text required required-entry" type="text">
+            </div>
+        </div>
+          <div class="field email required">
+            <label class="label" for="email"><span>Email</span></label>
+            <div class="control">
+                <input name="email" id="email" title="Email" value="" data-validate="{required:true, 'validate-email':true}" class="input-text required required-entry" type="email">
+            </div>
+        </div>
+        <div class="field comment required">
+            <label class="label" for="comment"><span>About Enquiry</span></label>
+            <div class="control">
+                <textarea name="comment" id="comment" title="What’s on your mind?" class="input-text required required-entry" cols="5" rows="3" aria-required="true"></textarea>
+            </div>
+        </div>
+          <!-- <input type="submit" value="Submit"> -->
+        </fieldset>
+    </form>
+</div>
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal',
+            'mage/mage'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: 'Know about product',
+                buttons: [{
+                    text: $.mage.__('Continue'),
+                    class: '',
+                    click: function () {
+                         var values = {};
+                         var thismodal = this;
+                         var dataForm = $('#inquiry-form');
+                         var formValid = dataForm.mage('validation', {});
+                        if($(formValid).validation('isValid'))
+                        {
+                            $("form.inquiry-form :input").each(function(){
+                             var input = $(this);
+                             values[this.name] = $(this).val();
+                            });
+                             $.ajax({
+                                type:"POST",
+                                cache:false,
+                                url:"productinquiry",
+                                data:{ formdata : values },
+                                success: function (html) {
+                                   if(html == 1)
+                                   {
+                                    thismodal.closeModal();
+                                    location.reload();
+                                   }else{
+                                        thismodal.closeModal();
+                                        location.reload();
+                                   }
+                                }
+                              });
+                        }
+                    }
+                }]
+            };
+            var popup = modal(options, $('#nnquiry-mpdal'));
+            $(".product-inquiry").on('click',function(){ 
+                var pname = $(this).attr('id');
+                $('.pname').val(pname);
+                $("#nnquiry-mpdal").modal("openModal");
+            });
+        }
+    );
+</script>
+
+<script type="text/javascript">
+    function addToCartCustom(name,image){
+        jQuery('.pimage').html('<img width="90" height="50" src="'+image+'" />')
+        jQuery('.product-name-cart').html(name);
+    }
+</script>
+
+<script type="text/x-magento-init">
+    {
+        "#inquiry-form": {
+            "validation": {}
+        }
+    }
+</script>

@@ -1,0 +1,26 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $_product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');
+    $_helper = $objectManager->get('Magento\Catalog\Helper\Output');
+    $block =  $objectManager->get('Magento\Catalog\Block\Product\View\Attributes');
+?>
+<?php if ($_additional = $block->getAdditionalData()): ?>
+    <div class="additional-attributes-wrapper table-wrapper">
+        <table class="data table additional-attributes" id="product-attribute-specs-table">
+            <tbody>
+            <?php foreach ($_additional as $_data): ?>
+                <tr>
+                    <th class="col label <?php echo $block->escapeHtml(__($_data['label'])) ?>" scope="row"><?php echo $block->escapeHtml(__($_data['label'])) ?></th>
+                    <td class="col data" data-th="<?php echo $block->escapeHtml(__($_data['label'])) ?>"><?php /* @escapeNotVerified */ echo $_helper->productAttribute($_product, $_data['value'], $_data['code']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif;?>
+<?php
+    /*$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $_product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');
+	$netWork = (string)$_product->getResource()->getAttribute('network')->getFrontend()->getLabel($_product);
+ 	echo $netWork;*/
+?>

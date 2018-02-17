@@ -1,0 +1,6 @@
+<?php 
+	//$objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
+	//$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');
+	$product = $block->getProduct();
+?>
+<h1 class="page-title"><span class="base" data-ui-id="page-title-wrapper" itemprop="name"><?php echo $product->getName(); ?></span></h1>

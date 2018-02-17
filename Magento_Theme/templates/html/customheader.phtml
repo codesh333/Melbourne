@@ -1,0 +1,19 @@
+<div id="custom-header" class="header content">
+       <div class="row no-margin">
+        <div class="mm_logo">
+            <a href="/"><?php echo $this->getChildHtml("logo"); ?></a>
+        </div>
+        <!--<div class="top_menu">
+        <?php //echo $this->getLayout()->createBlock("Magento\Theme\Block\Html\Topmenu")->setTemplate("Magento_Theme::html/topmenu.phtml")->toHtml(); ?>
+        </div>-->
+         <div class="top_social_icons">
+            <?php //echo $this->getChildHtml('minicart'); ?>
+            <?php //echo $this->getChildHtml("topSearch"); ?>
+            <?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('header-social-icons')->toHtml();?>
+        </div>
+    </div>
+    
+    
+<?php //echo $this->getLayout()->createBlock("Magestore\Bannerslider\Block\SliderItem")->setSliderId(1)->toHtml(); ?>
+    
+</div>

@@ -1,0 +1,14 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+  <body>
+    <referenceContainer name="page.top">
+      <container name="banner" as="banner" label="Banner" htmlTag="div" htmlClass="banner" htmlId="banner">
+        <block class="Magestore\Bannerslider\Block\SliderItem">
+          <action method="setSliderId">
+            <argument name="sliderId" xsi:type="string">1</argument>
+          </action>
+        </block>
+      </container>
+    </referenceContainer>
+     <referenceBlock name="page.main.title" display="false"/>
+  </body>
+</page>
